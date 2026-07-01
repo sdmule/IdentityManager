@@ -58,6 +58,11 @@ namespace IdentityManager.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public IActionResult Login()
+        {
+            return View();
+        }
+
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
