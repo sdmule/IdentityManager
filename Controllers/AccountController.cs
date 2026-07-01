@@ -24,7 +24,7 @@ namespace IdentityManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid) 
+            if (ModelState.IsValid)
             {
                 var user = new ApplicationUser
                 {
@@ -39,13 +39,23 @@ namespace IdentityManager.Controllers
                 //};
 
                 var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded) 
-                { 
+                if (result.Succeeded)
+                {
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
+
+                AddErrors(result);
             }
             return View(model);
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
         }
     }
 }
