@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using IdentityManager.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace IdentityManager.Data
@@ -10,5 +11,8 @@ namespace IdentityManager.Data
         {
 
         }
+
+        //Add DbSet properties for your entities here if needed
+        public DbSet<ApplicationUser> ApplicationUser { get; set; }
     }
 }
