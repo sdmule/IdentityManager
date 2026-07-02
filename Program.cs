@@ -15,14 +15,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+
+//Overriding the default password settings using Identity options
 builder.Services.Configure<IdentityOptions>(opt =>
 {
     opt.Password.RequireDigit = false;
-    //opt.Password.RequiredLength = 8;
-    opt.Password.RequireNonAlphanumeric = false;
-    //opt.Password.RequireUppercase = true;
     opt.Password.RequireLowercase = false;
-    //opt.User.RequireUniqueEmail = true;
+    opt.Password.RequireNonAlphanumeric = false;
+    opt.Lockout.MaxFailedAccessAttempts = 3;
+    opt.SignIn.RequireConfirmedEmail = false;
+    //opt.Password.RequiredLength = 8;
+    //opt.Password.RequireUppercase = true;
+    //opt.User.RequireUniqueEmail = false;
 });
 
 var app = builder.Build();
