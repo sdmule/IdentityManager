@@ -2,6 +2,9 @@ using IdentityManager.Data;
 using IdentityManager.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Resend;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using IdentityManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +15,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+//    .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 
 //Overriding the default password settings using Identity options
@@ -28,6 +34,19 @@ builder.Services.Configure<IdentityOptions>(opt =>
     //opt.Password.RequireUppercase = true;
     //opt.User.RequireUniqueEmail = false;
 });
+
+builder.Services.AddOptions();
+
+builder.Services.Configure<ResendClientOptions>(options =>
+{
+    options.ApiToken = builder.Configuration["Resend:ApiKey"];
+});
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddTransient<IResend, ResendClient>();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
