@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq.Expressions;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace IdentityManager.Controllers
 {
@@ -36,8 +37,24 @@ namespace IdentityManager.Controllers
                 await _roleManager.CreateAsync(new IdentityRole(SD.Admin));
                 await _roleManager.CreateAsync(new IdentityRole(SD.User));
             }
+
+            List<SelectListItem> listItems = new();
+            listItems.Add(new SelectListItem()
+            {
+                Value = SD.Admin,
+                Text = SD.Admin
+            });
+            listItems.Add(new SelectListItem()
+            {
+                Value = SD.User,
+                Text = SD.User
+            });
+
             ViewData["ReturnUrl"] = returnurl;
-            RegisterViewModel registerViewModel = new();
+            RegisterViewModel registerViewModel = new()
+            {
+                RoleList = listItems
+            };
             return View(registerViewModel);
         }
 
