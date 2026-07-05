@@ -9,6 +9,7 @@ using System.Text.Encodings.Web;
 
 namespace IdentityManager.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -23,6 +24,8 @@ namespace IdentityManager.Controllers
             _emailSender = emailSender;
             _urlEncoder = urlEncoder;
         }
+
+        [AllowAnonymous]
         public IActionResult Register(string returnurl = null)
         {
             ViewData["ReturnUrl"] = returnurl;
@@ -31,6 +34,7 @@ namespace IdentityManager.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnurl = null)
         {
@@ -70,6 +74,8 @@ namespace IdentityManager.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login(string returnurl = null)
         {
             ViewData["ReturnUrl"] = returnurl;
@@ -77,6 +83,7 @@ namespace IdentityManager.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnurl = null)
         {
@@ -109,6 +116,7 @@ namespace IdentityManager.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> VerifyAuthenticatorCode(bool rememberMe, string returnUrl = null)
         {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
@@ -163,12 +171,14 @@ namespace IdentityManager.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Lockout()
         {
             return View();
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
@@ -182,6 +192,7 @@ namespace IdentityManager.Controllers
         //}
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
@@ -221,12 +232,14 @@ namespace IdentityManager.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
         {
             return View();
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ResetPassword(string token, string email)
         {
             if (token == null || email == null)
@@ -244,6 +257,7 @@ namespace IdentityManager.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
@@ -269,12 +283,14 @@ namespace IdentityManager.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ResetPasswordConfirmation()
         {
             return View();
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult AuthenticatorConfirmation()
         {
             return View();
