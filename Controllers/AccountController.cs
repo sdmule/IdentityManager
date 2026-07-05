@@ -88,6 +88,14 @@ namespace IdentityManager.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    if (model.SelectedRole != null && model.SelectedRole.Length > 0 && model.SelectedRole == SD.Admin)
+                    {
+                        await _userManager.AddToRoleAsync(user, SD.Admin);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, SD.User);
+                    }
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnurl);
                 }
