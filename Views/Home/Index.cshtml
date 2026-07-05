@@ -7,7 +7,15 @@
 
     @if (User.Identity.IsAuthenticated)
     {
-        <a asp-controller="Account" asp-action="EnableAuthenticator">Setup Two Factor Authentication</a>
+        var twofactor = ViewData["TwoFactorEnabled"];
+        if (twofactor != null && twofactor.ToString().ToLower() == "true")
+        {
+            <a asp-controller="Account" asp-action="RemoveAuthenticator" class="btn btn-warning">Reset & Remove Two Factor Authentication</a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="EnableAuthenticator">Setup Two Factor Authentication</a>
+        }
         <br />
         <br />
     }
