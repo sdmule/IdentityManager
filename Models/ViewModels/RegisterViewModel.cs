@@ -26,6 +26,7 @@ namespace IdentityManager.Models.ViewModels
 
         public IEnumerable<SelectListItem> RoleList { get; set; }
 
+        [Display(Name="Role")]
         public string SelectedRole { get; set; }
     }
 }

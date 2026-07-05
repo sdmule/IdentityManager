@@ -38,22 +38,28 @@ namespace IdentityManager.Controllers
                 await _roleManager.CreateAsync(new IdentityRole(SD.User));
             }
 
-            List<SelectListItem> listItems = new();
-            listItems.Add(new SelectListItem()
-            {
-                Value = SD.Admin,
-                Text = SD.Admin
-            });
-            listItems.Add(new SelectListItem()
-            {
-                Value = SD.User,
-                Text = SD.User
-            });
+            //Here we had harcoded the roles
+            //List<SelectListItem> listItems = new();
+            //listItems.Add(new SelectListItem()
+            //{
+            //    Value = SD.Admin,
+            //    Text = SD.Admin
+            //});
+            //listItems.Add(new SelectListItem()
+            //{
+            //    Value = SD.User,
+            //    Text = SD.User
+            //});
 
             ViewData["ReturnUrl"] = returnurl;
             RegisterViewModel registerViewModel = new()
             {
-                RoleList = listItems
+                //Here we are fetching the roles from the database and passing it to the view (Dynamic Roles concept)
+                RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
+                {
+                    Text = i,
+                    Value = i
+                })
             };
             return View(registerViewModel);
         }
@@ -88,6 +94,12 @@ namespace IdentityManager.Controllers
 
                 AddErrors(result);
             }
+            //Here we are fetching the roles from the database and passing it to the view (Dynamic Roles concept)
+            model.RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
+            {
+                Text = i,
+                Value = i
+            });
             return View(model);
         }
 
