@@ -13,21 +13,29 @@ namespace IdentityManager.Controllers
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly UrlEncoder _urlEncoder;
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-                    IEmailSender emailSender, UrlEncoder urlEncoder)
+                    IEmailSender emailSender, UrlEncoder urlEncoder, RoleManager<IdentityRole> roleManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _emailSender = emailSender;
             _urlEncoder = urlEncoder;
+            _roleManager = roleManager;
         }
 
         [AllowAnonymous]
-        public IActionResult Register(string returnurl = null)
+        public async Task<IActionResult> Register(string returnurl = null)
         {
+            //Below code is to create roles if they are not created in the database
+            if (!_roleManager.RoleExistsAsync(SD.Admin).GetAwaiter().GetResult())
+            {
+                await _roleManager.CreateAsync(new IdentityRole(SD.Admin));
+                await _roleManager.CreateAsync(new IdentityRole(SD.User));
+            }
             ViewData["ReturnUrl"] = returnurl;
             RegisterViewModel registerViewModel = new();
             return View(registerViewModel);
