@@ -48,6 +48,11 @@ builder.Services.AddTransient<IResend, ResendClient>();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.AccessDeniedPath = new PathString("/Account/NoAccess");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
