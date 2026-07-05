@@ -154,6 +154,15 @@ namespace IdentityManager.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> RemoveAuthenticator()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            await _userManager.ResetAuthenticatorKeyAsync(user);
+            await _userManager.SetTwoFactorEnabledAsync(user, false);
+            return RedirectToAction(nameof(Index), "Home");
+        }
+
+        [HttpGet]
         public IActionResult Lockout()
         {
             return View();
