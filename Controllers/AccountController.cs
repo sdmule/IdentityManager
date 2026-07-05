@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq.Expressions;
 
 namespace IdentityManager.Controllers
 {
@@ -87,6 +88,10 @@ namespace IdentityManager.Controllers
                 {
                     return LocalRedirect(returnurl);
                 }
+                if (result.RequiresTwoFactor)
+                {
+                    return RedirectToAction(nameof(VerifyAuthenticatorCode), new { returnUrl = returnurl, rememberMe = model.RememberMe });
+                }
                 if (result.IsLockedOut)
                 {
                     return View("Lockout");
@@ -98,6 +103,23 @@ namespace IdentityManager.Controllers
                 }
             }
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> VerifyAuthenticatorCode(bool rememberMe, string returnUrl = null)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null)
+            {
+                return View("Error");
+            }
+            ViewData["ReturnUrl"] = returnUrl;
+
+            return View(new VerifyAuthenticatorViewModel
+            {
+                ReturnUrl = returnUrl,
+                RememberMe = rememberMe
+            });
         }
 
         [HttpGet]
