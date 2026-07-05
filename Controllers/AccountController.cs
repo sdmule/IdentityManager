@@ -3,6 +3,7 @@ using IdentityManager.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IdentityManager.Controllers
 {
@@ -209,6 +210,20 @@ namespace IdentityManager.Controllers
         public IActionResult ResetPasswordConfirmation()
         {
             return View();
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> EnableAuthenticator()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            await _userManager.ResetAuthenticatorKeyAsync(user);
+            var token = await _userManager.GetAuthenticatorKeyAsync(user);
+            var model = new TwoFactorAuthenticationViewModel
+            {
+                Token = token
+            };
+            return View(model);
         }
 
         private void AddErrors(IdentityResult result)
