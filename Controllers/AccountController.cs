@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq.Expressions;
+using System.Text.Encodings.Web;
 
 namespace IdentityManager.Controllers
 {
@@ -13,12 +14,14 @@ namespace IdentityManager.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly UrlEncoder _urlEncoder;
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-                    IEmailSender emailSender)
+                    IEmailSender emailSender, UrlEncoder urlEncoder)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _emailSender = emailSender;
+            _urlEncoder = urlEncoder;
         }
         public IActionResult Register(string returnurl = null)
         {
@@ -124,11 +127,12 @@ namespace IdentityManager.Controllers
 
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyAuthenticatorCode(VerifyAuthenticatorViewModel model)
         {
             model.ReturnUrl = model.ReturnUrl ?? Url.Content("~/");
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(model);
             }
@@ -271,12 +275,16 @@ namespace IdentityManager.Controllers
         [Authorize]
         public async Task<IActionResult> EnableAuthenticator()
         {
+            string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6"; //This is QR code format Url for Google Authenticator
             var user = await _userManager.GetUserAsync(User);
             await _userManager.ResetAuthenticatorKeyAsync(user);
             var token = await _userManager.GetAuthenticatorKeyAsync(user);
+            string AuthUri = string.Format(AuthenticatorUriFormat, _urlEncoder.Encode("IdentityManager"), 
+                _urlEncoder.Encode(user.Email), token);
             var model = new TwoFactorAuthenticationViewModel
             {
-                Token = token
+                Token = token,
+                QRCodeUrl = AuthUri
             };
             return View(model);
         }
@@ -286,10 +294,11 @@ namespace IdentityManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnableAuthenticator(TwoFactorAuthenticationViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
-                var succeeded = await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, model.Code);
+                var succeeded = await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, 
+                                model.Code);
                 if (succeeded)
                 {
                     await _userManager.SetTwoFactorEnabledAsync(user, true);
