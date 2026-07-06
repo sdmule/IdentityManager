@@ -18,8 +18,8 @@ namespace IdentityManager.Controllers
             return View();
         }
 
-        //Account with role of user can access this action.
-        public IActionResult UserRoleAccess()
+        //Account with role of user or admin can access this action.
+        public IActionResult UserOrAdminRoleAccess()
         {
             return View();
         }
