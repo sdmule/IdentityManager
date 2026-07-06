@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace IdentityManager.Controllers
 {
@@ -28,7 +29,14 @@ namespace IdentityManager.Controllers
             return View();
         }
 
-        [Authorize(Roles = SD.Admin)]
+
+        /*Policy-Based Authorization is an authorization mechanism introduced in ASP.NET Core that allows developers to define 
+        reusable authorization rules(policies).
+        A policy can contain one or more requirements such as roles, claims, or custom business logic.
+        Controllers or actions can then enforce these rules using the [Authorize(Policy = "...")] attribute, 
+        making authorization centralized, reusable, and easier to maintain.*/
+        //In almost all ASP.NET Core applications, authorization policies are configured during application startup, which is typically in Program.cs.
+        [Authorize(Policy = "Admin")]
         //Account with role of admin can access this action.
         public IActionResult AdminRoleAccess()
         {

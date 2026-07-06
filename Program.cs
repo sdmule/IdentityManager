@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Resend;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using IdentityManager.Services;
+using IdentityManager;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,20 +21,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-
-
-//Overriding the default password settings using Identity options
-builder.Services.Configure<IdentityOptions>(opt =>
-{
-    opt.Password.RequireDigit = false;
-    opt.Password.RequireLowercase = false;
-    opt.Password.RequireNonAlphanumeric = false;
-    opt.Lockout.MaxFailedAccessAttempts = 3;
-    opt.SignIn.RequireConfirmedEmail = false;
-    //opt.Password.RequiredLength = 8;
-    //opt.Password.RequireUppercase = true;
-    //opt.User.RequireUniqueEmail = false;
-});
 
 builder.Services.AddOptions();
 
@@ -51,6 +38,26 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.AccessDeniedPath = new PathString("/Account/NoAccess");
+});
+
+//Overriding the default password settings using Identity options
+builder.Services.Configure<IdentityOptions>(opt =>
+{
+    opt.Password.RequireDigit = false;
+    opt.Password.RequireLowercase = false;
+    opt.Password.RequireNonAlphanumeric = false;
+    opt.Lockout.MaxFailedAccessAttempts = 3;
+    opt.SignIn.RequireConfirmedEmail = false;
+    //opt.Password.RequiredLength = 8;
+    //opt.Password.RequireUppercase = true;
+    //opt.User.RequireUniqueEmail = false;
+});
+
+//Defining the authorization policies for the application
+builder.Services.AddAuthorization(options =>
+{
+    //This is the policy for the admin role. Only users with the admin role can access the resources that require this policy.
+    options.AddPolicy("Admin", policy => policy.RequireRole(SD.Admin));
 });
 
 var app = builder.Build();
