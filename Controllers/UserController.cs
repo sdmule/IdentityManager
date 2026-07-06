@@ -3,6 +3,7 @@ using IdentityManager.Models;
 using IdentityManager.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace IdentityManager.Controllers
 {
@@ -108,6 +109,7 @@ namespace IdentityManager.Controllers
             TempData[SD.Success] = "Roles assigned successfully";
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LockUnlock(string userId)
@@ -148,6 +150,71 @@ namespace IdentityManager.Controllers
             _db.ApplicationUser.Remove(user);
             _db.SaveChanges();
             TempData[SD.Success] = "User deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageUserClaims(string userId)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var existingUserClaims = await _userManager.GetClaimsAsync(user);
+            var model = new ClaimsViewModel()
+            {
+                User = user
+            };
+
+            foreach (Claim claim in ClaimStore.claimsList)
+            {
+                ClaimSelection userClaim = new()
+                {
+                    ClaimType = claim.Type
+                };
+
+                if (existingUserClaims.Any(c => c.Type == claim.Type))
+                {
+                    userClaim.IsSelected = true;
+                }
+                model.ClaimsList.Add(userClaim);
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManageUserClaims(RolesViewModel rolesViewModel)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(rolesViewModel.User.Id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            //Here we are removing all the existing roles
+            var oldUserRoles = await _userManager.GetRolesAsync(user);
+            var result = await _userManager.RemoveFromRolesAsync(user, oldUserRoles);
+
+            if (!result.Succeeded)
+            {
+                TempData[SD.Error] = "Error while removing existing roles";
+                return View(rolesViewModel);
+            }
+
+            //Here we are adding the selected roles
+            result = await _userManager.AddToRolesAsync(user,
+                rolesViewModel.RolesList.Where(x => x.IsSelected).Select(y => y.RoleName));
+
+            if (!result.Succeeded)
+            {
+                TempData[SD.Error] = "Error while adding selected roles";
+                return View(rolesViewModel);
+            }
+
+            TempData[SD.Success] = "Roles assigned successfully";
             return RedirectToAction(nameof(Index));
         }
     }
