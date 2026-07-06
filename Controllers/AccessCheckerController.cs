@@ -21,12 +21,14 @@ namespace IdentityManager.Controllers
             return View();
         }
 
+        [Authorize(Roles = $"{SD.Admin},{SD.User}")]//Here it is OR condition
         //Account with role of user or admin can access this action.
         public IActionResult UserOrAdminRoleAccess()
         {
             return View();
         }
 
+        [Authorize(Roles = SD.Admin)]
         //Account with role of admin can access this action.
         public IActionResult AdminRoleAccess()
         {
