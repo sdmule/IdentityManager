@@ -11,7 +11,7 @@ namespace IdentityManager.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public RoleController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)  
+        public RoleController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _db = db;
             _userManager = userManager;
@@ -51,7 +51,7 @@ namespace IdentityManager.Controllers
             if (string.IsNullOrEmpty(roleObj.NormalizedName))
             {
                 // Create new role
-                await _roleManager.CreateAsync(new IdentityRole() { Name = roleObj.Name});
+                await _roleManager.CreateAsync(new IdentityRole() { Name = roleObj.Name });
             }
             else
             {
@@ -61,6 +61,18 @@ namespace IdentityManager.Controllers
                 objFromDb.NormalizedName = roleObj.Name.ToUpper();
                 var result = await _roleManager.UpdateAsync(objFromDb);
                 //var result = _db.Roles.Update(objFromDb); //This is an alternative way to update the role, but using RoleManager is preferred for Identity roles.
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(string roleId)
+        {
+            var objFromDb = _db.Roles.FirstOrDefault(r => r.Id == roleId);
+            if (objFromDb != null)
+            {
+                var result = await _roleManager.DeleteAsync(objFromDb);
             }
             return RedirectToAction(nameof(Index));
         }
