@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityManager.Controllers
 {
     //This is dummy controller to check if the user has access to the IdentityManager area.
     //If the user does not have access, they will be redirected to the login page.
+    [Authorize]
     public class AccessCheckerController : Controller
     {
         //Anyone can access this action, even if they are not logged in.
+        [AllowAnonymous]
         public IActionResult AllAccess()
         {
             return View();
