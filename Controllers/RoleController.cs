@@ -52,6 +52,7 @@ namespace IdentityManager.Controllers
             {
                 // Create new role
                 await _roleManager.CreateAsync(new IdentityRole() { Name = roleObj.Name });
+                TempData["success"] = "Role created successfully";
             }
             else
             {
@@ -61,6 +62,7 @@ namespace IdentityManager.Controllers
                 objFromDb.NormalizedName = roleObj.Name.ToUpper();
                 var result = await _roleManager.UpdateAsync(objFromDb);
                 //var result = _db.Roles.Update(objFromDb); //This is an alternative way to update the role, but using RoleManager is preferred for Identity roles.
+                TempData["success"] = "Role updated successfully";
             }
             return RedirectToAction(nameof(Index));
         }
@@ -73,6 +75,7 @@ namespace IdentityManager.Controllers
             if (objFromDb != null)
             {
                 var result = await _roleManager.DeleteAsync(objFromDb);
+                TempData["success"] = "Role deleted successfully";
             }
             return RedirectToAction(nameof(Index));
         }
