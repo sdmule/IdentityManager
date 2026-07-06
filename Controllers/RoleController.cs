@@ -39,5 +39,30 @@ namespace IdentityManager.Controllers
                 return View(objFromDb);
             }
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Upsert(IdentityRole roleObj) //upsert means update or insert
+        {
+            if (await _roleManager.RoleExistsAsync(roleObj.Name))
+            {
+                //Error message
+            }
+            if (string.IsNullOrEmpty(roleObj.NormalizedName))
+            {
+                // Create new role
+                await _roleManager.CreateAsync(new IdentityRole() { Name = roleObj.Name});
+            }
+            else
+            {
+                // Update existing role
+                var objFromDb = _db.Roles.FirstOrDefault(r => r.Id == roleObj.Id);
+                objFromDb.Name = roleObj.Name;
+                objFromDb.NormalizedName = roleObj.Name.ToUpper();
+                var result = await _roleManager.UpdateAsync(objFromDb);
+                //var result = _db.Roles.Update(objFromDb); //This is an alternative way to update the role, but using RoleManager is preferred for Identity roles.
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
