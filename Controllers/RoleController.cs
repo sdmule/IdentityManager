@@ -74,9 +74,17 @@ namespace IdentityManager.Controllers
             var objFromDb = _db.Roles.FirstOrDefault(r => r.Id == roleId);
             if (objFromDb != null)
             {
+                var userRolesForThisRole = _db.UserRoles.Where(u => u.RoleId == roleId).Count();
+                if(userRolesForThisRole > 0)
+                {
+                    TempData[SD.Error] = "Role cannot be deleted as it is assigned to one or more users.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var result = await _roleManager.DeleteAsync(objFromDb);
                 TempData[SD.Success] = "Role deleted successfully";
             }
+            TempData[SD.Error] = "Role not found.";
             return RedirectToAction(nameof(Index));
         }
     }
