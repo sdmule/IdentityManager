@@ -27,7 +27,7 @@ namespace IdentityManager.Controllers
                 var user_Role = userRole.FirstOrDefault(u => u.UserId == user.Id);
                 if (user_Role == null)
                 {
-                    user.RoleId = "none";
+                    user.Role = "none";
                 }
                 else
                 {
