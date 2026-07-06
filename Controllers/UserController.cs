@@ -40,6 +40,7 @@ namespace IdentityManager.Controllers
             return View(userList);
         }
 
+        [HttpGet]
         public async Task<IActionResult> ManageRole(string userId)
         {
             ApplicationUser user = await _userManager.FindByIdAsync(userId);
@@ -105,6 +106,33 @@ namespace IdentityManager.Controllers
             }
 
             TempData[SD.Success] = "Roles assigned successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LockUnlock(string userId)
+        {
+            ApplicationUser user = _db.ApplicationUser.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            if(user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
+            {
+                //user is currently locked, we will unlock them
+                //user is locked and will remain locked until lockoutend time
+                //clicking on this action will unlock them
+                user.LockoutEnd = DateTime.Now;
+                TempData[SD.Success] = "User unlocked successfully";
+            }
+            else
+            {
+                //user is currently unlocked, we will lock them
+                //user is not locked and we want to lock them , we will set the lockoutend date to a future date
+                user.LockoutEnd = DateTime.Now.AddYears(1000);
+                TempData[SD.Success] = "User locked successfully";
+            }
+            _db.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
     }
