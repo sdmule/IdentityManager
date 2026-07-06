@@ -207,6 +207,7 @@ namespace IdentityManager.Controllers
             //Here we are adding the selected claims
             result = await _userManager.AddClaimsAsync(user,
                 claimsViewModel.ClaimsList.Where(x => x.IsSelected).Select(y => new Claim(y.ClaimType, y.IsSelected.ToString())));
+            //Here claimType is like the RoleName
 
             if (!result.Succeeded)
             {
