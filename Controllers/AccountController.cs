@@ -28,6 +28,7 @@ namespace IdentityManager.Controllers
             _roleManager = roleManager;
         }
 
+        [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Register(string returnurl = null)
         {
@@ -88,9 +89,9 @@ namespace IdentityManager.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    if (model.SelectedRole != null && model.SelectedRole.Length > 0 && model.SelectedRole == SD.Admin)
+                    if (model.SelectedRole != null)
                     {
-                        await _userManager.AddToRoleAsync(user, SD.Admin);
+                        await _userManager.AddToRoleAsync(user, model.SelectedRole);
                     }
                     else
                     {

@@ -20,23 +20,15 @@ namespace IdentityManager.Controllers
             _roleManager = roleManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var userList = _db.ApplicationUser.ToList();
-            var userRole = _db.UserRoles.ToList();
-            var roles = _db.Roles.ToList();
 
             foreach (var user in userList)
             {
-                var user_Role = userRole.FirstOrDefault(u => u.UserId == user.Id);
-                if (user_Role == null)
-                {
-                    user.Role = "none";
-                }
-                else
-                {
-                    user.Role = roles.FirstOrDefault(u => u.Id == user_Role.RoleId).Name;
-                }
+                var user_Role = await _userManager.GetRolesAsync(user) as List<string>;
+
+                user.Role = String.Join(",", user_Role);
             }
             return View(userList);
         }
@@ -143,7 +135,7 @@ namespace IdentityManager.Controllers
         public async Task<IActionResult> DeleteUser(string userId)
         {
             var user = _db.ApplicationUser.FirstOrDefault(u => u.Id == userId);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
