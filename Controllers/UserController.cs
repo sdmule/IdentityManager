@@ -61,7 +61,7 @@ namespace IdentityManager.Controllers
                     RoleName = role.Name,
                 };
 
-                if(existingUserRoles.Any(c => c == role.Name))
+                if (existingUserRoles.Any(c => c == role.Name))
                 {
                     roleSelection.IsSelected = true;
                 }
@@ -72,6 +72,40 @@ namespace IdentityManager.Controllers
                 model.RolesList.Add(roleSelection);
             }
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManageRole(RolesViewModel rolesViewModel)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(rolesViewModel.User.Id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            //Here we are removing all the existing roles
+            var oldUserRoles = await _userManager.GetRolesAsync(user);
+            var result = await _userManager.RemoveFromRolesAsync(user, oldUserRoles);
+
+            if (!result.Succeeded)
+            {
+                TempData[SD.Error] = "Error while removing existing roles";
+                return View(rolesViewModel);
+            }
+
+            //Here we are adding the selected roles
+            result = await _userManager.AddToRolesAsync(user,
+                rolesViewModel.RolesList.Where(x => x.IsSelected).Select(y => y.RoleName));
+
+            if(!result.Succeeded)
+            {
+                TempData[SD.Error] = "Error while adding selected roles";
+                return View(rolesViewModel);
+            }
+
+            TempData[SD.Success] = "Roles assigned successfully";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
