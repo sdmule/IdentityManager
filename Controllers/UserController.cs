@@ -186,35 +186,35 @@ namespace IdentityManager.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ManageUserClaims(RolesViewModel rolesViewModel)
+        public async Task<IActionResult> ManageUserClaims(ClaimsViewModel claimsViewModel)
         {
-            ApplicationUser user = await _userManager.FindByIdAsync(rolesViewModel.User.Id);
+            ApplicationUser user = await _userManager.FindByIdAsync(claimsViewModel.User.Id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            //Here we are removing all the existing roles
-            var oldUserRoles = await _userManager.GetRolesAsync(user);
-            var result = await _userManager.RemoveFromRolesAsync(user, oldUserRoles);
+            //Here we are removing all the existing claims
+            var oldClaims = await _userManager.GetClaimsAsync(user);
+            var result = await _userManager.RemoveClaimsAsync(user, oldClaims);
 
             if (!result.Succeeded)
             {
-                TempData[SD.Error] = "Error while removing existing roles";
-                return View(rolesViewModel);
+                TempData[SD.Error] = "Error while removing existing claims";
+                return View(claimsViewModel);
             }
 
-            //Here we are adding the selected roles
-            result = await _userManager.AddToRolesAsync(user,
-                rolesViewModel.RolesList.Where(x => x.IsSelected).Select(y => y.RoleName));
+            //Here we are adding the selected claims
+            result = await _userManager.AddClaimsAsync(user,
+                claimsViewModel.ClaimsList.Where(x => x.IsSelected).Select(y => new Claim(y.ClaimType, y.IsSelected.ToString())));
 
             if (!result.Succeeded)
             {
-                TempData[SD.Error] = "Error while adding selected roles";
-                return View(rolesViewModel);
+                TempData[SD.Error] = "Error while adding selected claims";
+                return View(claimsViewModel);
             }
 
-            TempData[SD.Success] = "Roles assigned successfully";
+            TempData[SD.Success] = "Claims assigned successfully";
             return RedirectToAction(nameof(Index));
         }
     }
