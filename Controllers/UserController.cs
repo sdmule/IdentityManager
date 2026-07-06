@@ -99,7 +99,7 @@ namespace IdentityManager.Controllers
             result = await _userManager.AddToRolesAsync(user,
                 rolesViewModel.RolesList.Where(x => x.IsSelected).Select(y => y.RoleName));
 
-            if(!result.Succeeded)
+            if (!result.Succeeded)
             {
                 TempData[SD.Error] = "Error while adding selected roles";
                 return View(rolesViewModel);
@@ -117,7 +117,7 @@ namespace IdentityManager.Controllers
             {
                 return NotFound();
             }
-            if(user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
+            if (user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
             {
                 //user is currently locked, we will unlock them
                 //user is locked and will remain locked until lockoutend time
@@ -133,6 +133,21 @@ namespace IdentityManager.Controllers
                 TempData[SD.Success] = "User locked successfully";
             }
             _db.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            var user = _db.ApplicationUser.FirstOrDefault(u => u.Id == userId);
+            if(user == null)
+            {
+                return NotFound();
+            }
+            _db.ApplicationUser.Remove(user);
+            _db.SaveChanges();
+            TempData[SD.Success] = "User deleted successfully";
             return RedirectToAction(nameof(Index));
         }
     }
