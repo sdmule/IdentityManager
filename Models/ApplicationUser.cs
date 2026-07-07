@@ -14,5 +14,7 @@ namespace IdentityManager.Models
 
         [NotMapped]
         public string Role { get; set; }
+        [NotMapped]
+        public string UserClaims { get; set; }
     }
 }

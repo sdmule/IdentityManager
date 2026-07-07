@@ -3,6 +3,7 @@ using IdentityManager.Models;
 using IdentityManager.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Resend;
 using System.Security.Claims;
 
 namespace IdentityManager.Controllers
@@ -27,8 +28,10 @@ namespace IdentityManager.Controllers
             foreach (var user in userList)
             {
                 var user_Role = await _userManager.GetRolesAsync(user) as List<string>;
-
                 user.Role = String.Join(",", user_Role);
+
+                var user_Claims = _userManager.GetClaimsAsync(user).GetAwaiter().GetResult().Select(u => u.Type);
+                user.UserClaims = String.Join(",", user_Claims);
             }
             return View(userList);
         }
@@ -195,6 +198,18 @@ namespace IdentityManager.Controllers
                 TempData[SD.Error] = "Error while removing existing claims";
                 return View(claimsViewModel);
             }
+
+            //ClaimType is not case-sensitive but ClaimValue is case-sensitive
+            //A Claim is a piece of information(or statement) about a user that represents the user's identity, attributes, or permissions
+            //For example:
+            //Name = Saurabh
+            //Email = mulesaurabh45@gmail.com
+            //Country = India
+            //Department = IT
+            //Age = 25
+            //EmployeeId = 101
+            //Permission = CreateEmployee
+            //Each one of these is a claim.
 
             //Here we are adding the selected claims
             result = await _userManager.AddClaimsAsync(user,
