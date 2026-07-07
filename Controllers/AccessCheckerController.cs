@@ -70,5 +70,10 @@ namespace IdentityManager.Controllers
         {
             return View();
         }
+
+        public IActionResult OnlySaurabh()
+        {
+            return View();
+        }
     }
 }

@@ -9,6 +9,7 @@ using IdentityManager;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using IdentityManager.Authorize;
+using IdentityManager.Services.IServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddTransient<IResend, ResendClient>();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+builder.Services.AddScoped<INumberOfDaysForAccount, NumberOfDaysForAccount>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
