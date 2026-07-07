@@ -60,7 +60,13 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy => policy.RequireRole(SD.Admin));
 
     options.AddPolicy("AdminAndUser", policy => policy.RequireRole(SD.Admin).RequireRole(SD.User));
-    options.AddPolicy("AdminRole_CreateClaim", policy => policy.RequireRole(SD.Admin).RequireClaim("Create","True"));
+    options.AddPolicy("AdminRole_CreateClaim", policy => policy.RequireRole(SD.Admin).RequireClaim("Create", "True"));
+    options.AddPolicy("AdminRole_CreateEditDeleteClaim", policy => policy
+                .RequireRole(SD.Admin)
+                .RequireClaim("Create", "True")
+                .RequireClaim("Edit", "True")
+                .RequireClaim("delete", "True")
+            );
 });
 
 var app = builder.Build();
