@@ -60,6 +60,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy => policy.RequireRole(SD.Admin));
 
     options.AddPolicy("AdminAndUser", policy => policy.RequireRole(SD.Admin).RequireRole(SD.User));
+    options.AddPolicy("AdminRole_CreateClaim", policy => policy.RequireRole(SD.Admin).RequireClaim("Create","True"));
 });
 
 var app = builder.Build();

@@ -50,6 +50,7 @@ namespace IdentityManager.Controllers
             return View();
         }
 
+        [Authorize(Policy = "AdminRole_CreateClaim")]
         //Account with admin role and create claim can access this action.
         public IActionResult Admin_CreateAccess()
         {
