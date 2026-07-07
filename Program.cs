@@ -6,6 +6,8 @@ using Resend;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using IdentityManager.Services;
 using IdentityManager;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,12 +72,7 @@ builder.Services.AddAuthorization(options =>
 
     //Below The Func Type is used with policy based authorization
     options.AddPolicy("AdminRole_CreateEditDeleteClaim_OR_SuperAdminRole", policy => policy.RequireAssertion(context =>
-    (
-            context.User.IsInRole(SD.Admin) && context.User.HasClaim(c => c.Type == "Create" && c.Value == "True")
-            && context.User.HasClaim(c => c.Type == "Edit" && c.Value == "True")
-            && context.User.HasClaim(c => c.Type == "Delete" && c.Value == "True")
-    )
-    ||      context.User.IsInRole(SD.SuperAdmin)
+            AdminRole_CreateEditDeleteClaim_OR_SuperAdminRole(context)
     ));
 });
 
@@ -103,3 +100,12 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+bool AdminRole_CreateEditDeleteClaim_OR_SuperAdminRole(AuthorizationHandlerContext context)
+{
+    return  (
+                context.User.IsInRole(SD.Admin) && context.User.HasClaim(c => c.Type == "Create" && c.Value == "True")
+                && context.User.HasClaim(c => c.Type == "Edit" && c.Value == "True")
+                && context.User.HasClaim(c => c.Type == "Delete" && c.Value == "True")
+            )       || context.User.IsInRole(SD.SuperAdmin);
+}
