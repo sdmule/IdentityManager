@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Linq.Expressions;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace IdentityManager.Controllers
 {
@@ -143,6 +144,15 @@ namespace IdentityManager.Controllers
 
                 if (result.Succeeded)
                 {
+                    var user = await _userManager.GetUserAsync(User);
+                    var claim = await _userManager.GetClaimsAsync(user);
+
+                    if (claim.Count > 0)
+                    {
+                        await _userManager.RemoveClaimAsync(user, claim.FirstOrDefault(u => u.Type == "FirstName"));
+                    }
+                    await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("FirstName", user.Name));
+
                     return LocalRedirect(returnurl);
                 }
                 if (result.RequiresTwoFactor)
