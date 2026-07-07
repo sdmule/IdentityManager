@@ -22,6 +22,13 @@ namespace IdentityManager.Controllers
             return View();
         }
 
+        [Authorize(Policy = "AdminAndUser")]
+        //Account with role of user and admin(both roles must be there to user) can access this action.
+        public IActionResult UserANDAdminRoleAccess()
+        {
+            return View();
+        }
+
         [Authorize(Roles = $"{SD.Admin},{SD.User}")]//Here it is OR condition
         //Account with role of user or admin can access this action.
         public IActionResult UserOrAdminRoleAccess()

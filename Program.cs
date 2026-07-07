@@ -58,6 +58,8 @@ builder.Services.AddAuthorization(options =>
 {
     //This is the policy for the admin role. Only users with the admin role can access the resources that require this policy.
     options.AddPolicy("Admin", policy => policy.RequireRole(SD.Admin));
+
+    options.AddPolicy("AdminAndUser", policy => policy.RequireRole(SD.Admin).RequireRole(SD.User));
 });
 
 var app = builder.Build();
