@@ -41,6 +41,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddScoped<INumberOfDaysForAccount, NumberOfDaysForAccount>();
 builder.Services.AddScoped<IAuthorizationHandler, AdminWithOver1000DaysHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, FirstNameAuthHandler>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -81,6 +82,7 @@ builder.Services.AddAuthorization(options =>
     ));
     options.AddPolicy("OnlySuperAdminChecker", policy => policy.Requirements.Add(new OnlySuperAdminChecker()));
     options.AddPolicy("AdminWithMoreThan1000Days", policy => policy.Requirements.Add(new AdminWithMoreThan1000DaysRequirement(1000)));
+    options.AddPolicy("FirstNameAuth", policy => policy.Requirements.Add(new FirstNameAuthRequirement("test")));
 });
 
 var app = builder.Build();
@@ -110,9 +112,9 @@ app.Run();
 
 bool AdminRole_CreateEditDeleteClaim_OR_SuperAdminRole(AuthorizationHandlerContext context)
 {
-    return  (
+    return (
                 context.User.IsInRole(SD.Admin) && context.User.HasClaim(c => c.Type == "Create" && c.Value == "True")
                 && context.User.HasClaim(c => c.Type == "Edit" && c.Value == "True")
                 && context.User.HasClaim(c => c.Type == "Delete" && c.Value == "True")
-            )       || context.User.IsInRole(SD.SuperAdmin);
+            ) || context.User.IsInRole(SD.SuperAdmin);
 }
