@@ -8,6 +8,7 @@ using IdentityManager.Services;
 using IdentityManager;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
+using IdentityManager.Authorize;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +75,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminRole_CreateEditDeleteClaim_OR_SuperAdminRole", policy => policy.RequireAssertion(context =>
             AdminRole_CreateEditDeleteClaim_OR_SuperAdminRole(context)
     ));
+    options.AddPolicy("OnlySuperAdminChecker", policy => policy.Requirements.Add(new OnlySuperAdminChecker()));
 });
 
 var app = builder.Build();
