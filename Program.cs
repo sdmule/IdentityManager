@@ -67,6 +67,16 @@ builder.Services.AddAuthorization(options =>
                 .RequireClaim("Edit", "True")
                 .RequireClaim("delete", "True")
             );
+
+    //Below The Func Type is used with policy based authorization
+    options.AddPolicy("AdminRole_CreateEditDeleteClaim_OR_SuperAdminRole", policy => policy.RequireAssertion(context =>
+    (
+            context.User.IsInRole(SD.Admin) && context.User.HasClaim(c => c.Type == "Create" && c.Value == "True")
+            && context.User.HasClaim(c => c.Type == "Edit" && c.Value == "True")
+            && context.User.HasClaim(c => c.Type == "Delete" && c.Value == "True")
+    )
+    ||      context.User.IsInRole(SD.SuperAdmin)
+    ));
 });
 
 var app = builder.Build();
